@@ -31,79 +31,14 @@ class Contact(db.Model):
 #---------------------------------------------------------------------
 
 # Rota para listar todos os contatos
-@app.route('/contacts', methods=['GET'])
-def get_contacts():
-    contacts = Contact.query.all()
-    result = []
-    for contact in contacts:
-        contact_data = {
-            'id': contact.id,
-            'nome': contact.nome,
-            'endereco': contact.endereco,
-            'email': contact.email,
-            'telefone': contact.telefone,
-            'linkedin': contact.linkedin
-        }
-        result.append(contact_data)
-    return jsonify(result)
 
 # Rota para adicionar um novo contato
-@app.route('/contacts', methods=['POST'])
-def add_contact():
-    data = request.get_json()
-    nome = data['nome']
-    endereco = data['endereco']
-    email = data['email']
-    telefone = data['telefone']
-    linkedin = data['linkedin']
-    contact = Contact(nome, endereco, email, telefone, linkedin)
-    db.session.add(contact)
-    db.session.commit()
-    return jsonify({'message': 'Contato adicionado com sucesso!'})
 
-# Rota para obter os detalhes de um contato específico
-@app.route('/contacts/<int:id>', methods=['GET'])
-def get_contact(id):
-    contact = Contact.query.get(id)
-    if contact:
-        contact_data = {
-            'id': contact.id,
-            'nome': contact.nome,
-            'endereco': contact.endereco,
-            'email': contact.email,
-            'telefone': contact.telefone,
-            'linkedin': contact.linkedin
-        }
-        return jsonify(contact_data)
-    else:
-        return jsonify({'message': 'Contato não encontrado'}), 404
+# Rota para obter os detalhes de um contato específico (de acordo com o ID)
 
 # Rota para atualizar os detalhes de um contato
-@app.route('/contacts/<int:id>', methods=['PUT'])
-def update_contact(id):
-    contact = Contact.query.get(id)
-    if contact:
-        data = request.get_json()
-        contact.nome = data['nome']
-        contact.endereco = data['endereco']
-        contact.email = data['email']
-        contact.telefone = data['telefone']
-        contact.linkedin = data['linkedin']
-        db.session.commit()
-        return jsonify({'message': 'Contato atualizado com sucesso!'})
-    else:
-        return jsonify({'message': 'Contato não encontrado'}), 404
 
 # Rota para excluir um contato
-@app.route('/contacts/<int:id>', methods=['DELETE'])
-def delete_contact(id):
-    contact = Contact.query.get(id)
-    if contact:
-        db.session.delete(contact)
-        db.session.commit()
-        return jsonify({'message': 'Contato excluído com sucesso!'})
-    else:
-        return jsonify({'message': 'Contato não encontrado'}), 404
 
 #Inicialização da API
 if __name__ == '__main__':
