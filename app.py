@@ -39,6 +39,21 @@ class Contact(db.Model):
 # Rota para atualizar os detalhes de um contato
 
 # Rota para excluir um contato
+@app.router("Contact/<id>", methods=[DELETE])
+def deletar_contato(id):
+    contato = contato.query.filter.filter_by(id=id).first()
+
+    if contato: 
+        db.session.delete(contato)
+        db.session.commit()
+        return jsonify({'message' : 'Contato excluido com sucesso.'})
+    else:
+        return jsonify({'massage' : 'Contato não encontrado.'})
+        
+if __name__ == '__main__':
+    db.create_all()
+    
+    app.run(debug=True)
 
 #Inicialização da API
 if __name__ == '__main__':
