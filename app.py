@@ -31,30 +31,108 @@ class Contact(db.Model):
 #---------------------------------------------------------------------
 
 # Rota para listar todos os contatos
+@app.route('/contacts', methods=['GET'])
+def getContatos():
+
+  contatos = Contact.query.all()
+
+  resultados = []
+
+  for contact in contatos:
+        # Cria um dicionário com os dados do contato
+        contact_data = {
+            'id': contact.id,
+            'nome': contact.nome,
+            'endereco': contact.endereco,
+            'email': contact.email,
+            'telefone': contact.telefone,
+            'linkedin': contact.linkedin
+        }
+        resultados.append(contact_data)
+
+  return jsonify(resultados)
 
 # Rota para adicionar um novo contato
+@app.route('/contacts', methods=['POST'])
+def add_contact():
+    try:
+        data = request.get_json()
+        nome = data['nome']
+        endereco = data['endereco']
+        email = data['email']
+        telefone = data['telefone']
+        linkedin = data['linkedin']
+
+        contact = Contact(nome, endereco, email, telefone, linkedin)
+
+        db.session.add(contact)
+        db.session.commit()
+
+        return jsonify({'message': 'Contato adicionado com sucesso!'})
+    except KeyError as e:
+        return jsonify({'error': 'Campo obrigatório ausente: ' + str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': 'Contate a área de desenvolvimento' + str(e)}), 500
 
 # Rota para obter os detalhes de um contato específico (de acordo com o ID)
+@app.route('/contacts/<int:usuarioId>', methods=['GET'])
+def getContatoUnico(usuarioId):
+
+  contatos = Contact.query.filter_by(id=usuarioId)
+
+  resultado = []
+
+  if contatos is None:
+    return print('Não foi possivel achar este usuário')
+    
+  else:
+    for contact in contatos:
+      tabelaContato = {
+        'id'      : contact.id,
+        'nome'    : contact.nome,
+        'endereco': contact.endereco,
+        'email'   : contact.email,
+        'telefone': contact.telefone,
+        'linkedin': contact.linkedin
+      }
+  
+    resultado.append(tabelaContato)
+    
+    return jsonify(resultado)
 
 # Rota para atualizar os detalhes de um contato
+@app.route('/contacts/<int:usuarioId>', methods=['PUT'])
+def putAlterarContato(usuarioId):
+
+  contato = Contact.query.get(usuarioId)
+
+  if contato:
+    inputJson = request.get_json()
+    contato.nome = inputJson['nome']
+    contato.endereco = inputJson['endereco']
+    contato.email = inputJson['email']
+    contato.telefone = inputJson['telefone']
+    contato.linkedin = inputJson['linkedin']
+
+    db.session.commit()
+
+    return jsonify({'message': 'Contato atualizado com sucesso!'})
+  else:
+    return jsonify({'message': 'Contato não encontrado'}), 404
 
 # Rota para excluir um contato
-@app.router("Contact/<id>", methods=[DELETE])
+@app.route("/contacts/<int:id>", methods=['DELETE'])
 def deletar_contato(id):
-    contato = contato.query.filter.filter_by(id=id).first()
+    contato = Contact.query.get(id)
 
     if contato: 
         db.session.delete(contato)
         db.session.commit()
         return jsonify({'message' : 'Contato excluido com sucesso.'})
     else:
-        return jsonify({'massage' : 'Contato não encontrado.'})
-        
-if __name__ == '__main__':
-    db.create_all()
+        return jsonify({'massage' : 'Contato não encontrado.'}), 404
     
-    app.run(debug=True)
-
+    
 #Inicialização da API
 if __name__ == '__main__':
     with app.app_context():
